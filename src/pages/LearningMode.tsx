@@ -38,6 +38,7 @@ export default function LearningMode() {
     currentChar,
     activeFinger,
     isFinished,
+    isWaiting,
     errors,
     handleKey,
     reset,
@@ -47,6 +48,11 @@ export default function LearningMode() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      // Prevent scrolling with Space
+      if (e.key === " " && isWaiting) {
+        e.preventDefault();
+      }
+
       if (e.key === "Backspace") return; 
       if (e.key === "Tab") {
         e.preventDefault();
@@ -61,13 +67,15 @@ export default function LearningMode() {
         return;
       }
 
-      if (e.key.length === 1) {
+      // Pass keys to hook. Hook handles isWaiting check.
+      // We pass the key if it's a single char OR if it's Enter/Space (for starting)
+      if (e.key.length === 1 || e.key === "Enter") {
         handleKey(e.key);
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [handleKey, reset]); // handleKey is now much more stable
+  }, [handleKey, reset, isWaiting]); // handleKey is now much more stable
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-zinc-100 p-8 pt-32 flex flex-col items-center">
@@ -154,6 +162,28 @@ export default function LearningMode() {
         </div>
         
         <AnimatePresence>
+          {isWaiting && !isFinished && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#0d0d0d]/40 backdrop-blur-[2px] rounded-2xl border border-zinc-800/50"
+            >
+              <div className="flex flex-col items-center gap-6 animate-bounce">
+                <div className="flex gap-4">
+                  <div className="bg-zinc-900 border border-zinc-700 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-zinc-100 shadow-[0_10px_0_rgb(39,39,42)]">
+                    SPACE
+                  </div>
+                  <div className="text-zinc-600 font-black italic flex items-center">OR</div>
+                  <div className="bg-zinc-900 border border-zinc-700 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-zinc-100 shadow-[0_10px_0_rgb(39,39,42)]">
+                    ENTER
+                  </div>
+                </div>
+                <p className="text-yellow-500 font-bold uppercase tracking-[0.3em] text-sm animate-pulse">TO INITIALIZE ENGINE</p>
+              </div>
+            </motion.div>
+          )}
+
           {isFinished && (
             <motion.div 
               initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
@@ -185,6 +215,9 @@ export default function LearningMode() {
         
         {/* Shortcut Legend */}
         <div className="mt-8 flex gap-4 opacity-40 group-hover:opacity-100 transition-opacity">
+          <div className="bg-zinc-900 px-3 py-1 rounded text-[10px] text-zinc-400 border border-zinc-800">
+            <span className="text-zinc-600 font-bold uppercase mr-1">Space / Enter</span> Start
+          </div>
           <div className="bg-zinc-900 px-3 py-1 rounded text-[10px] text-zinc-400 border border-zinc-800">
             <span className="text-zinc-600 font-bold uppercase mr-1">Tab</span> Reset
           </div>
