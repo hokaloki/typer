@@ -10,8 +10,31 @@ export function useTypingTest(targetText: string, onComplete?: (stats: any) => v
   const [isFinished, setIsFinished] = useState(false);
   const [isError, setIsError] = useState(false);
 
-  // Auto-reset when target text changes
+  // Use refs for logic that must be synchronous and latest
+  const stateRef = useRef({
+    userInput: "",
+    startTime: null as number | null,
+    isWaiting: true,
+    isFinished: false,
+    errors: 0,
+    targetText: targetText
+  });
+
+  // Sync refs when state or props change
   useEffect(() => {
+    stateRef.current.targetText = targetText;
+  }, [targetText]);
+
+  // Reset function that cleans both state and ref
+  const reset = useCallback(() => {
+    stateRef.current = {
+      userInput: "",
+      startTime: null,
+      isWaiting: true,
+      isFinished: false,
+      errors: 0,
+      targetText: targetText
+    };
     setUserInput("");
     setStartTime(null);
     setEndTime(null);
@@ -24,13 +47,18 @@ export function useTypingTest(targetText: string, onComplete?: (stats: any) => v
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
-  const handleKeyInternal = useCallback((key: string) => {
+  const handleKey = useCallback((key: string) => {
+    const { isFinished, isWaiting, userInput, startTime, errors, targetText } = stateRef.current;
+
     if (isFinished) return;
 
     if (isWaiting) {
       if (key === " " || key === "Enter") {
+        const now = Date.now();
+        stateRef.current.isWaiting = false;
+        stateRef.current.startTime = now;
         setIsWaiting(false);
-        setStartTime(Date.now());
+        setStartTime(now);
       }
       return;
     }
@@ -38,12 +66,14 @@ export function useTypingTest(targetText: string, onComplete?: (stats: any) => v
     const expected = targetText[userInput.length];
     
     if (key === expected) {
-      setIsError(false);
       const nextInput = userInput + key;
+      stateRef.current.userInput = nextInput;
       setUserInput(nextInput);
+      setIsError(false);
 
       if (nextInput.length === targetText.length) {
         const now = Date.now();
+        stateRef.current.isFinished = true;
         setEndTime(now);
         setIsFinished(true);
         
@@ -59,29 +89,14 @@ export function useTypingTest(targetText: string, onComplete?: (stats: any) => v
         });
       }
     } else {
+      // Ignore non-character keys for error counting (Shift, Alt, etc. handled by event length check)
       if (key.length === 1 && key !== "Enter") {
+        stateRef.current.errors += 1;
+        setErrors(stateRef.current.errors);
         setIsError(true);
-        setErrors(prev => prev + 1);
       }
     }
-  }, [isFinished, isWaiting, targetText, userInput, startTime, errors]);
-
-  const handleKeyRef = useRef(handleKeyInternal);
-  handleKeyRef.current = handleKeyInternal;
-
-  const handleKey = useCallback((key: string) => {
-    handleKeyRef.current(key);
-  }, []);
-
-  const reset = useCallback(() => {
-    setUserInput("");
-    setStartTime(null);
-    setEndTime(null);
-    setErrors(0);
-    setIsFinished(false);
-    setIsWaiting(true);
-    setIsError(false);
-  }, []);
+  }, []); // Truly stable handleKey
 
   return {
     userInput,

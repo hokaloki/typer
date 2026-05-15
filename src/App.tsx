@@ -11,7 +11,7 @@ export default function App() {
   return (
     <FirebaseProvider>
       <Router>
-        <div className="min-h-screen bg-slate-950 font-sans selection:bg-green-500/30 selection:text-green-400">
+        <div className="min-h-screen bg-bg-dark font-sans selection:bg-primary/30 selection:text-primary">
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
