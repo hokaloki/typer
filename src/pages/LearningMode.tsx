@@ -48,6 +48,9 @@ export default function LearningMode() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      // Ignore OS-level key repeats to prevent multiple error counts or double-inputs
+      if (e.repeat) return;
+
       if (e.key === " " && isWaiting) {
         e.preventDefault();
       }

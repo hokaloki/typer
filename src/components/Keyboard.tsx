@@ -82,6 +82,7 @@ export const Keyboard: React.FC<KeyboardProps> = ({ activeKey, activeFinger }) =
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
       setPressedKeys(prev => {
         const next = new Set(prev);
         next.add(e.key.toLowerCase());
