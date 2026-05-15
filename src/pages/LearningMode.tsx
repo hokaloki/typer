@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Keyboard } from '../components/Keyboard';
-import { FingerGuide } from '../components/FingerGuide';
 import { useTypingTest } from '../hooks/useTypingTest';
 import { cn } from '../lib/utils';
 import { RotateCcw, ChevronRight, Award, Zap, Target, Activity, Cpu } from 'lucide-react';
@@ -201,15 +200,8 @@ export default function LearningMode() {
       </section>
 
       {/* Visual Guides */}
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start relative z-10">
+      <div className="w-full max-w-5xl relative z-10">
         <Keyboard activeKey={currentChar} activeFinger={activeFinger} />
-        <div className="bg-zinc-900/40 p-8 rounded-3xl border border-zinc-800/60 backdrop-blur-xl shadow-2xl">
-          <div className="flex items-center gap-3 mb-6 text-zinc-600">
-            <Cpu className="w-4 h-4" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Mechanical Guide</span>
-          </div>
-          <FingerGuide activeFinger={activeFinger} />
-        </div>
       </div>
       
       <footer className="mt-auto py-12 text-zinc-700 text-[9px] uppercase font-mono tracking-[0.5em] opacity-40 hover:opacity-100 transition-opacity cursor-default">

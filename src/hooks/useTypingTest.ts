@@ -20,12 +20,15 @@ export function useTypingTest(targetText: string, onComplete?: (stats: any) => v
     targetText: targetText
   });
 
-  // Sync refs when state or props change
-  useEffect(() => {
+  // Sync refs immediately during render to ensure handleKey always has latest context
+  if (stateRef.current.targetText !== targetText) {
     stateRef.current.targetText = targetText;
-  }, [targetText]);
+    // Note: reset() is called by the component if text changes significantly
+  }
 
-  // Reset function that cleans both state and ref
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
   const reset = useCallback(() => {
     stateRef.current = {
       userInput: "",
@@ -44,63 +47,71 @@ export function useTypingTest(targetText: string, onComplete?: (stats: any) => v
     setIsError(false);
   }, [targetText]);
 
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
-
   const handleKey = useCallback((key: string) => {
-    const { isFinished, isWaiting, userInput, startTime, errors, targetText } = stateRef.current;
+    const state = stateRef.current;
+    if (state.isFinished) return;
 
-    if (isFinished) return;
+    // Read latest from state to be safe, but use ref as primary source of truth
+    const currentInput = state.userInput;
+    const target = state.targetText;
 
-    // Auto-start on first key if it's not a control key
-    if (isWaiting) {
+    if (state.isWaiting) {
       if (key.length === 1 || key === "Enter") {
         const now = Date.now();
-        stateRef.current.isWaiting = false;
-        stateRef.current.startTime = now;
+        state.isWaiting = false;
+        state.startTime = now;
         setIsWaiting(false);
         setStartTime(now);
-        // Continue to check if this first key is correct
+        
+        // If they pressed a key to start, and it doesn't match the first char,
+        // we only skip it if it's a generic trigger like Space or Enter.
+        // Otherwise, we fall through to process it as a (possibly wrong) first character.
+        if (key !== target[0] && (key === " " || key === "Enter")) {
+          return;
+        }
       } else {
+        // Ignore modifiers like Shift, Alt, etc.
         return;
       }
     }
 
-    const { userInput: updatedUserInput, errors: updatedErrors, startTime: updatedStartTime } = stateRef.current;
-    const expected = targetText[updatedUserInput.length];
+    const expected = target[currentInput.length];
     
+    // Safety check: don't process if we're past the end
+    if (currentInput.length >= target.length) return;
+
     if (key === expected) {
-      const nextInput = updatedUserInput + key;
-      stateRef.current.userInput = nextInput;
+      const nextInput = currentInput + key;
+      state.userInput = nextInput;
       setUserInput(nextInput);
       setIsError(false);
 
-      if (nextInput.length === targetText.length) {
+      if (nextInput.length === target.length) {
         const now = Date.now();
-        stateRef.current.isFinished = true;
+        state.isFinished = true;
         setEndTime(now);
         setIsFinished(true);
         
-        const effectiveStartTime = updatedStartTime || now;
+        const effectiveStartTime = state.startTime || now;
         const wpmVal = calculateWpm(nextInput.length, effectiveStartTime, now);
-        const accuracyVal = calculateAccuracy(nextInput.length, nextInput.length + updatedErrors);
+        const accuracyVal = calculateAccuracy(nextInput.length, nextInput.length + state.errors);
         
         onCompleteRef.current?.({
           wpm: wpmVal,
           accuracy: accuracyVal,
-          errorCount: updatedErrors,
+          errorCount: state.errors,
           duration: Math.floor((now - effectiveStartTime) / 1000)
         });
       }
     } else {
-      // Ignore control keys for error counting
+      // Only count errors for character-producing keys
       if (key.length === 1 && key !== "Enter") {
-        stateRef.current.errors += 1;
-        setErrors(stateRef.current.errors);
+        state.errors += 1;
+        setErrors(state.errors);
         setIsError(true);
       }
     }
-  }, []); // Truly stable handleKey
+  }, [calculateWpm, calculateAccuracy]); // stable dependencies
 
   return {
     userInput,
