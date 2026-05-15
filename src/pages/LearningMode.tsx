@@ -12,8 +12,7 @@ const DEFAULT_SENTENCE = "The quick brown fox jumps over the lazy dog";
 
 export default function LearningMode() {
   const [repetitions, setRepetitions] = useState(1);
-  const [currentCycle, setCurrentCycle] = useState(0);
-  const [fullText, setFullText] = useState("");
+  const [fullText, setFullText] = useState(() => Array(1).fill(DEFAULT_SENTENCE).join(" "));
 
   useEffect(() => {
     setFullText(Array(repetitions).fill(DEFAULT_SENTENCE).join(" "));
@@ -48,18 +47,27 @@ export default function LearningMode() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Backspace") return; // We don't support backspace in this basic learning mode
+      if (e.key === "Backspace") return; 
       if (e.key === "Tab") {
         e.preventDefault();
         reset();
+        return;
       }
+      
+      // Handle Shift+Enter as requested in the legend (focus)
+      if (e.key === "Enter" && e.shiftKey) {
+        e.preventDefault();
+        reset();
+        return;
+      }
+
       if (e.key.length === 1) {
         handleKey(e.key);
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [handleKey, reset]);
+  }, [handleKey, reset]); // handleKey is now much more stable
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-zinc-100 p-8 pt-32 flex flex-col items-center">
