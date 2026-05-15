@@ -16,10 +16,13 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [authInProgress, setAuthInProgress] = useState(false);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
+      setAuthInProgress(false);
     });
 
     // Test connection as per guidelines
@@ -38,12 +41,20 @@ export function FirebaseProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async () => {
+    if (authInProgress) return;
+    setAuthInProgress(true);
+    
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
     } catch (error: any) {
+      setAuthInProgress(false);
       if (error.code === 'auth/popup-closed-by-user') {
         console.log("Sign in was cancelled by the user.");
+        return;
+      }
+      if (error.code === 'auth/cancelled-popup-request') {
+        console.log("A previous sign in attempt is still pending.");
         return;
       }
       console.error("Sign in failed", error);

@@ -52,21 +52,25 @@ export function useTypingTest(targetText: string, onComplete?: (stats: any) => v
 
     if (isFinished) return;
 
+    // Auto-start on first key if it's not a control key
     if (isWaiting) {
-      if (key === " " || key === "Enter") {
+      if (key.length === 1 || key === "Enter") {
         const now = Date.now();
         stateRef.current.isWaiting = false;
         stateRef.current.startTime = now;
         setIsWaiting(false);
         setStartTime(now);
+        // Continue to check if this first key is correct
+      } else {
+        return;
       }
-      return;
     }
 
-    const expected = targetText[userInput.length];
+    const { userInput: updatedUserInput, errors: updatedErrors, startTime: updatedStartTime } = stateRef.current;
+    const expected = targetText[updatedUserInput.length];
     
     if (key === expected) {
-      const nextInput = userInput + key;
+      const nextInput = updatedUserInput + key;
       stateRef.current.userInput = nextInput;
       setUserInput(nextInput);
       setIsError(false);
@@ -77,19 +81,19 @@ export function useTypingTest(targetText: string, onComplete?: (stats: any) => v
         setEndTime(now);
         setIsFinished(true);
         
-        const effectiveStartTime = startTime || now;
+        const effectiveStartTime = updatedStartTime || now;
         const wpmVal = calculateWpm(nextInput.length, effectiveStartTime, now);
-        const accuracyVal = calculateAccuracy(nextInput.length, nextInput.length + errors);
+        const accuracyVal = calculateAccuracy(nextInput.length, nextInput.length + updatedErrors);
         
         onCompleteRef.current?.({
           wpm: wpmVal,
           accuracy: accuracyVal,
-          errorCount: errors,
+          errorCount: updatedErrors,
           duration: Math.floor((now - effectiveStartTime) / 1000)
         });
       }
     } else {
-      // Ignore non-character keys for error counting (Shift, Alt, etc. handled by event length check)
+      // Ignore control keys for error counting
       if (key.length === 1 && key !== "Enter") {
         stateRef.current.errors += 1;
         setErrors(stateRef.current.errors);

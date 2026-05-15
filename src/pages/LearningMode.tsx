@@ -167,23 +167,10 @@ export default function LearningMode() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-x-10 inset-y-10 z-30 flex flex-col items-center justify-center bg-bg-dark/60 backdrop-blur-sm rounded-[2rem] border border-zinc-800/50"
+              className="absolute bottom-6 right-10 flex items-center gap-3"
             >
-              <div className="flex flex-col items-center gap-8">
-                <div className="flex gap-4">
-                  <KeyCap label="Space" />
-                  <div className="text-zinc-700 font-black italic flex items-center">OR</div>
-                  <KeyCap label="Enter" />
-                </div>
-                <div className="flex flex-col items-center">
-                  <p className="text-primary font-black uppercase tracking-[0.5em] text-sm mb-2 animate-pulse">Initialize Engine</p>
-                  <div className="flex gap-1">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="w-1.5 h-1.5 bg-primary/20 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-ping" />
+              <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em]">Awaiting Input_</p>
             </motion.div>
           )}
 

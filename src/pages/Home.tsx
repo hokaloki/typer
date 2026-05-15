@@ -28,53 +28,56 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-7xl lg:text-[10rem] font-black uppercase italic tracking-tighter leading-[0.85] text-white"
+              className="text-7xl lg:text-[11rem] font-black uppercase italic tracking-tighter leading-[0.8] text-white"
             >
               Swift<br />
-              <span className="text-primary drop-shadow-[0_0_30px_rgba(234,179,8,0.3)]">Typer</span>
+              <span className="text-primary drop-shadow-[0_0_30px_rgba(234,179,8,0.4)]">Typer</span>
             </motion.h1>
             
             <motion.p 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="max-w-xl text-zinc-500 text-lg font-medium leading-relaxed"
+              className="max-w-xl text-zinc-500 text-lg font-black uppercase tracking-tight leading-relaxed opacity-60"
             >
-              The ultimate mechanical training environment for high-velocity typing. 
-              Optimize your neuro-muscular pathways for extreme character throughput.
+              The ultimate high-velocity training environment. 
+              Refine your mechanical throughput to absolute perfection.
             </motion.p>
             
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="flex flex-wrap gap-6 pt-4"
+              className="flex flex-wrap gap-8 pt-6"
             >
               <Link 
                 to="/learn"
-                className="bg-primary text-black px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(234,179,8,0.3)] flex items-center gap-3"
+                className="bg-primary text-black px-14 py-6 rounded-2xl font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(234,179,8,0.3)] flex items-center gap-4 group"
               >
-                Launch Practice
-                <ChevronRight className="w-5 h-5" />
+                Start Training
+                <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
               </Link>
               {!user && (
                 <button 
                   onClick={signIn}
-                  className="bg-white/5 border border-white/10 text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-3"
+                  className="bg-white/5 border border-white/10 text-white px-10 py-6 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-white/10 transition-all flex items-center gap-4 group"
                 >
-                  Sync Profile
+                  <Activity className="w-5 h-5 text-primary group-hover:animate-pulse" />
+                  Sync Identity
                 </button>
               )}
             </motion.div>
           </div>
           
           <div className="flex-1 relative hidden lg:block overflow-visible">
-            <div className="absolute inset-0 bg-primary/20 blur-[120px] rounded-full animate-pulse" />
-            <div className="relative z-10 grid grid-cols-2 gap-6">
-              <StatCard icon={<Activity className="text-primary" />} label="Avg Velocity" value="124" unit="WPM" />
-              <StatCard icon={<ShieldCheck className="text-emerald-500" />} label="Auth Integrity" value="100" unit="%" />
-              <StatCard icon={<Cpu className="text-blue-500" />} label="Latency" value="2" unit="MS" />
-              <StatCard icon={<Database className="text-purple-500" />} label="Data Uplink" value="READY" />
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center opacity-10">
+              <div className="w-[600px] h-[600px] border-[20px] border-primary rounded-full animate-[spin_60s_linear_infinite] border-dotted" />
+            </div>
+            <div className="relative z-10 grid grid-cols-2 gap-8">
+              <StatCard icon={<Activity className="text-primary" />} label="Peak Velocity" value="168" unit="WPM" />
+              <StatCard icon={<ShieldCheck className="text-emerald-500" />} label="Auth Status" value="ENCRYPTED" />
+              <StatCard icon={<LineChart className="text-blue-500" />} label="Avg Precision" value="99.2" unit="%" />
+              <StatCard icon={<Cpu className="text-purple-500" />} label="Core Latency" value="1.2" unit="MS" />
             </div>
           </div>
         </div>
