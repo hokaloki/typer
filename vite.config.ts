@@ -16,6 +16,7 @@ export default defineConfig(({mode}) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        '@protobufjs/fetch': path.resolve(__dirname, 'src/lib/fetch-shim.ts'),
       },
     },
     server: {
