@@ -130,9 +130,15 @@ export default function LearningMode() {
       </div>
 
       {/* Typing Area */}
-      <section className="w-full max-w-5xl relative mb-20 group z-10 px-10 py-16 bg-zinc-900/10 rounded-[3rem] border border-zinc-800/40 backdrop-blur-3xl shadow-inner">
-        <div className="relative font-mono text-4xl leading-[1.6] tracking-wide text-zinc-700 min-h-[160px] select-none">
-          {fullText.split('').map((char, index) => {
+      <section 
+        className={cn(
+          "w-full max-w-5xl relative mb-20 group z-10 px-10 py-16 bg-zinc-900/10 rounded-[3rem] border transition-all duration-300 backdrop-blur-3xl shadow-inner",
+          isError ? "border-red-500/50 bg-red-500/5" : "border-zinc-800/40 hover:border-zinc-700/60"
+        )}
+      >
+        <div className="relative font-mono text-4xl leading-[1.6] tracking-wide text-zinc-700 min-h-[160px] select-none text-center">
+          <div className="max-w-4xl mx-auto">
+            {fullText.split('').map((char, index) => {
             let status = 'pending';
             if (index < userInput.length) status = 'correct';
             else if (index === userInput.length) status = 'current';
@@ -144,20 +150,40 @@ export default function LearningMode() {
                   "relative transition-all duration-75 inline-block",
                   status === 'correct' && "text-zinc-200 drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]",
                   status === 'current' && !isError && "text-primary bg-primary/10 underline decoration-primary decoration-4 underline-offset-8",
-                  status === 'current' && isError && "text-red-500 bg-red-500/10 underline decoration-red-500 decoration-4 underline-offset-8 animate-[shake_0.2s_ease-in-out]",
+                  status === 'current' && isError && "text-red-500 bg-red-500/10 underline decoration-red-500 decoration-4 underline-offset-8 animate-shake",
                   status === 'pending' && "text-zinc-800"
                 )}
               >
                 {status === 'current' && (
-                  <span className={cn(
-                    "absolute -left-[1px] top-0 bottom-0 w-[4px] animate-[pulse_1s_infinite] rounded-full shadow-[0_0_10px_currentColor]",
-                    isError ? "bg-red-500" : "bg-primary"
-                  )} />
+                  <motion.span 
+                    layoutId="cursor"
+                    className={cn(
+                      "absolute -left-[1px] top-0 bottom-0 w-[4px] rounded-full shadow-[0_0_15px_currentColor]",
+                      isError ? "bg-red-500" : "bg-primary"
+                    )}
+                    animate={{ 
+                      opacity: [1, 0.5, 1],
+                      height: ["100%", "90%", "100%"]
+                    }}
+                    transition={{ 
+                      duration: 0.8,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  />
                 )}
                 {char === ' ' ? '\u00A0' : char}
+                {status === 'correct' && index === userInput.length - 1 && (
+                  <motion.div
+                    initial={{ scale: 1.5, opacity: 1 }}
+                    animate={{ scale: 1, opacity: 0 }}
+                    className="absolute inset-0 bg-primary/30 rounded blur-sm pointer-events-none"
+                  />
+                )}
               </span>
             );
           })}
+          </div>
         </div>
         
         <AnimatePresence>

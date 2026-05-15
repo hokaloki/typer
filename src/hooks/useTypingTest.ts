@@ -104,8 +104,9 @@ export function useTypingTest(targetText: string, onComplete?: (stats: any) => v
         });
       }
     } else {
-      // Only count errors for character-producing keys
-      if (key.length === 1 && key !== "Enter") {
+      // Only count errors for character-producing keys that aren't the expected one
+      // We ignore non-character keys like Shift, Ctrl, etc. (handled by length check)
+      if (key.length === 1) {
         state.errors += 1;
         setErrors(state.errors);
         setIsError(true);

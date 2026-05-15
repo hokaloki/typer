@@ -14,20 +14,37 @@ interface KeyProps {
 const Key: React.FC<KeyProps> = ({ label, active, pressed, isFingerKey, className }) => {
   return (
     <motion.div
+      initial={false}
       animate={{
         backgroundColor: active ? '#EAB308' : pressed ? '#404040' : isFingerKey ? '#1a1a1a' : '#27272a',
         borderColor: active ? '#EAB308' : pressed ? '#525252' : isFingerKey ? '#EAB30844' : '#3f3f46',
-        color: active ? '#000' : pressed ? '#fff' : isFingerKey ? '#EAB308' : '#71717a',
-        boxShadow: active ? '0 0 15px rgba(234,179,8,0.4)' : pressed ? 'inset 0 0 10px rgba(0,0,0,0.5)' : 'none',
-        scale: pressed ? 0.95 : 1
+        color: active ? '#000' : pressed ? '#ffffff' : isFingerKey ? '#EAB308' : '#71717a',
+        boxShadow: active 
+          ? '0 0 20px rgba(234,179,8,0.4)' 
+          : pressed 
+            ? 'inset 0 2px 4px rgba(0,0,0,0.5)' 
+            : '0 2px 0 rgba(0,0,0,0.1)',
+        scale: pressed ? 0.93 : active ? 1.05 : 1,
+        y: pressed ? 2 : 0
       }}
-      transition={{ duration: 0.1 }}
+      transition={{ 
+        type: "spring",
+        stiffness: 600,
+        damping: 30,
+        mass: 0.8
+      }}
       className={cn(
-        "h-10 flex items-center justify-center rounded text-[10px] font-bold font-sans border transition-shadow",
+        "h-10 flex items-center justify-center rounded-lg text-[10px] font-black font-sans border transition-all relative overflow-hidden",
         className
       )}
     >
-      {label.toUpperCase()}
+      <span className="relative z-10">{label.toUpperCase()}</span>
+      {active && (
+        <motion.div 
+          layoutId="active-glow"
+          className="absolute inset-0 bg-primary opacity-10 blur-xl"
+        />
+      )}
     </motion.div>
   );
 };
