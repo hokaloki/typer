@@ -8,89 +8,88 @@ export function useTypingTest(targetText: string, onComplete?: (stats: any) => v
   const [isWaiting, setIsWaiting] = useState(true);
   const [errors, setErrors] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const [isError, setIsError] = useState(false);
 
-  const currentChar = targetText[userInput.length] || "";
-  const activeFinger: Finger | undefined = KEY_TO_FINGER[currentChar];
-
-  const startTimeRef = useRef<number | null>(null);
-  const errorsRef = useRef(0);
-  const isFinishedRef = useRef(false);
-  const isWaitingRef = useRef(true);
-  const userInputRef = useRef("");
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
-
+  // Auto-reset when target text changes
   useEffect(() => {
-    userInputRef.current = userInput;
-  }, [userInput]);
-
-  const reset = useCallback(() => {
     setUserInput("");
-    userInputRef.current = "";
     setStartTime(null);
     setEndTime(null);
     setErrors(0);
     setIsFinished(false);
     setIsWaiting(true);
-    startTimeRef.current = null;
-    errorsRef.current = 0;
-    isFinishedRef.current = false;
-    isWaitingRef.current = true;
-  }, []);
+    setIsError(false);
+  }, [targetText]);
 
-  const handleKey = useCallback((key: string) => {
-    if (isFinishedRef.current) return;
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
-    if (isWaitingRef.current) {
+  const handleKeyInternal = useCallback((key: string) => {
+    if (isFinished) return;
+
+    if (isWaiting) {
       if (key === " " || key === "Enter") {
         setIsWaiting(false);
-        isWaitingRef.current = false;
-        const now = Date.now();
-        startTimeRef.current = now;
-        setStartTime(now);
+        setStartTime(Date.now());
       }
       return;
     }
 
-    const expected = targetText[userInputRef.current.length];
+    const expected = targetText[userInput.length];
     
     if (key === expected) {
-      const nextInputValue = userInputRef.current + key;
-      userInputRef.current = nextInputValue; // Sync update
-      setUserInput(nextInputValue); // Trigger rerender
+      setIsError(false);
+      const nextInput = userInput + key;
+      setUserInput(nextInput);
 
-      if (nextInputValue.length === targetText.length) {
+      if (nextInput.length === targetText.length) {
         const now = Date.now();
         setEndTime(now);
         setIsFinished(true);
-        isFinishedRef.current = true;
         
-        const finalStartTime = startTimeRef.current || now;
-        const wpmVal = calculateWpm(nextInputValue.length, finalStartTime, now);
-        const accuracyVal = calculateAccuracy(nextInputValue.length, nextInputValue.length + errorsRef.current);
+        const effectiveStartTime = startTime || now;
+        const wpmVal = calculateWpm(nextInput.length, effectiveStartTime, now);
+        const accuracyVal = calculateAccuracy(nextInput.length, nextInput.length + errors);
         
         onCompleteRef.current?.({
           wpm: wpmVal,
           accuracy: accuracyVal,
-          errorCount: errorsRef.current,
-          duration: Math.floor((now - finalStartTime) / 1000)
+          errorCount: errors,
+          duration: Math.floor((now - effectiveStartTime) / 1000)
         });
       }
     } else {
-      // It's an error if it's a single character key
-      if (key.length === 1) {
-        errorsRef.current += 1;
-        setErrors(errorsRef.current);
+      if (key.length === 1 && key !== "Enter") {
+        setIsError(true);
+        setErrors(prev => prev + 1);
       }
     }
-  }, [targetText]);
+  }, [isFinished, isWaiting, targetText, userInput, startTime, errors]);
+
+  const handleKeyRef = useRef(handleKeyInternal);
+  handleKeyRef.current = handleKeyInternal;
+
+  const handleKey = useCallback((key: string) => {
+    handleKeyRef.current(key);
+  }, []);
+
+  const reset = useCallback(() => {
+    setUserInput("");
+    setStartTime(null);
+    setEndTime(null);
+    setErrors(0);
+    setIsFinished(false);
+    setIsWaiting(true);
+    setIsError(false);
+  }, []);
 
   return {
     userInput,
-    currentChar,
-    activeFinger,
+    currentChar: targetText[userInput.length] || "",
+    activeFinger: KEY_TO_FINGER[targetText[userInput.length] || ""],
     isFinished,
     isWaiting,
+    isError,
     errors,
     startTime,
     handleKey,

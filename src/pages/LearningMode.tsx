@@ -39,6 +39,7 @@ export default function LearningMode() {
     activeFinger,
     isFinished,
     isWaiting,
+    isError,
     errors,
     handleKey,
     reset,
@@ -148,12 +149,16 @@ export default function LearningMode() {
                 className={cn(
                   "relative transition-all duration-75",
                   status === 'correct' && "text-zinc-300",
-                  status === 'current' && "text-yellow-500 bg-yellow-500/10 underline decoration-yellow-500 decoration-2 underline-offset-8",
+                  status === 'current' && !isError && "text-yellow-500 bg-yellow-500/10 underline decoration-yellow-500 decoration-2 underline-offset-8",
+                  status === 'current' && isError && "text-red-500 bg-red-500/10 underline decoration-red-500 decoration-2 underline-offset-8 animate-[shake_0.2s_ease-in-out]",
                   status === 'pending' && "text-zinc-800"
                 )}
               >
                 {status === 'current' && (
-                  <span className="absolute -left-[1px] top-0 bottom-0 w-[2.5px] bg-yellow-500 animate-[pulse_1s_infinite]" />
+                  <span className={cn(
+                    "absolute -left-[1px] top-0 bottom-0 w-[2.5px] animate-[pulse_1s_infinite]",
+                    isError ? "bg-red-500" : "bg-yellow-500"
+                  )} />
                 )}
                 {char === ' ' ? '\u00A0' : char}
               </span>

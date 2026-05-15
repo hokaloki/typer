@@ -91,7 +91,7 @@ export default function Analytics() {
         </div>
 
         {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div className="mb-16">
           <div className="bg-zinc-900/40 p-10 rounded-3xl border border-zinc-800/60 shadow-xl backdrop-blur-sm">
             <h3 className="text-xs font-bold uppercase tracking-[0.3em] mb-10 text-zinc-500 flex items-center gap-3">
               <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full" />
@@ -119,25 +119,7 @@ export default function Analytics() {
             </div>
           </div>
 
-          <div className="bg-zinc-900/40 p-10 rounded-3xl border border-zinc-800/60 shadow-xl backdrop-blur-sm">
-            <h3 className="text-xs font-bold uppercase tracking-[0.3em] mb-10 text-zinc-500 flex items-center gap-3">
-              <div className="w-1.5 h-1.5 bg-white rounded-full" />
-              Precision Map
-            </h3>
-            <div className="h-[320px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="4 4" stroke="#1e293b" vertical={false} opacity={0.2} />
-                  <XAxis dataKey="time" stroke="#475569" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#475569" fontSize={10} tickLine={false} axisLine={false} domain={[0, 100]} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#0d0d0d', border: '1px solid #27272a', borderRadius: '8px', fontSize: '10px' }}
-                  />
-                  <Line type="monotone" dataKey="accuracy" stroke="#fff" strokeWidth={3} dot={{ r: 4, fill: '#fff', strokeWidth: 0 }} activeDot={{ r: 6, fill: '#EAB308' }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+
         </div>
 
         {/* Session Log */}
