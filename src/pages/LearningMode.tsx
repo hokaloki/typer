@@ -202,7 +202,7 @@ export default function LearningMode() {
 
       {/* Visual Guides */}
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start relative z-10">
-        <Keyboard activeKey={currentChar} />
+        <Keyboard activeKey={currentChar} activeFinger={activeFinger} />
         <div className="bg-zinc-900/40 p-8 rounded-3xl border border-zinc-800/60 backdrop-blur-xl shadow-2xl">
           <div className="flex items-center gap-3 mb-6 text-zinc-600">
             <Cpu className="w-4 h-4" />
